@@ -1,0 +1,21 @@
+version: '3'
+
+services: 
+  publisher: 
+    build: 
+      context: ./publisher
+    devices:
+     - /dev/ttyACM0:/dev/ttyACM0
+    environment:
+      - PYTHONUNBUFFERED=1
+    privileged: true
+
+  receiver: 
+    build: 
+      context: ./receiver
+    devices:
+     - /dev/ttyACM1:/dev/ttyACM1
+    environment:
+      - PYTHONUNBUFFERED=1
+    privileged: true
+    

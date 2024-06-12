@@ -1,0 +1,37 @@
+python:build:
+  stage: build
+  image: python:3.11
+  script:
+    - pip install -r client/requirements.txt
+
+python:test:
+  image: python:3.11
+  stage: test
+  script:
+    - pip install -r client/requirements.txt
+    - python -m unittest discover -s client -p "*_test.py"
+    - pip install -r lambda_functions/requirements.txt
+    - python -m unittest discover -s lambda_functions -p "*_test.py"
+
+include:
+  - template: Terraform.gitlab-ci.yml
+
+build:
+  artifacts:
+    when: on_success
+    expire_in: 10 days
+    paths:
+      - "${TF_ROOT}/*.zip"
+      - ${TF_ROOT}/plan.cache
+    reports:
+      terraform: ${TF_ROOT}/plan.json
+
+deploy:
+  artifacts:
+    when: on_success
+    expire_in: 10 days
+    paths:
+      - "$CI_PROJECT_DIR/client/certs/*"
+
+variables:
+  TF_ROOT: "$CI_PROJECT_DIR/terraform"
